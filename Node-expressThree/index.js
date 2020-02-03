@@ -3,6 +3,8 @@ const http = require('http')
 const morgan = require('morgan')
 const bodyParser = require('body-parser')
 const dishRouter = require('./routes/dishRouter')
+const promoRouter = require('./routes/promoRouter')
+const leaderRouter = require('./routes/leaderRouter')
 
 const hostname = 'localhost'
 const port = '3000'
@@ -14,7 +16,8 @@ app.use(bodyParser.json());
 app.use(morgan('dev'));
 
 app.use('/dishes',dishRouter)
-// app.use('/dishes/',dishRouter)
+app.use('/promotion/',promoRouter)
+app.use('/leaders/',leaderRouter)
 
 app.use((req,res,next)=> {
     console.log(req.headers);
