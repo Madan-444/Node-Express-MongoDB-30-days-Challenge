@@ -43,42 +43,27 @@ app.use(session({
   saveUninitialized :false,
   resave: false,
   store: new FileStore()
-}))
+}));
+
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
 
 
 //For basic autontication
 function auth (req, res, next) {
-  console.log(req.session);
   if(!req.session.user){
-    var authHeader = req.headers.authorization;
-    if (!authHeader) {
-        var err = new Error('You are not authenticated!');
-        res.setHeader('WWW-Authenticate', 'Basic');
-        err.status = 401;
-        next(err);
-        return;
+    var err = new Error('You are not authenticated!');
+    res.setHeader('WWW-Authenticate', 'Basic');
+    err.status = 403;
+    return next(err);
     }
-  
-    var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    var user = auth[0];
-    var pass = auth[1];
-    if (user == 'admin' && pass == 'passwor') {
-      req.session.user = 'admin'
-        next(); // authorized
-    } else {
-        var err = new Error('You are not authenticated!');
-        res.setHeader('WWW-Authenticate', 'Basic');      
-        err.status = 401;
-        next(err);
-    }
-  }
   else {
-    if(req.session.user === 'admin'){
+    if(req.session.user === 'authenticated'){
       next();
     }
     else{
       var err = new Error('You are not authenticated!');     
-        err.status = 401;
+        err.status = 403;
         next(err);
     }
   }
@@ -89,8 +74,7 @@ app.use(auth);
 //To serve the static html files
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+
 app.use('/dishes', dishRouter);
 app.use('/promotion', promoRouter);
 app.use('/leaders', leaderRouter);
@@ -107,7 +91,7 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
-  res.status(err.status || 5000);
+  res.status(err.status || 3000);
   res.render('error');
 });
 
